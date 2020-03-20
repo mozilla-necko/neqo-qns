@@ -1,12 +1,9 @@
-FROM ubuntu:19.04
-
-RUN apt-get update && \
-  apt-get install -y wget net-tools iputils-ping tcpdump ethtool iperf
+FROM martenseemann/quic-network-simulator-endpoint:latest
 
 # START stuff from mt
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates coreutils curl git make mercurial ssh \
-    build-essential clang llvm libclang-dev gyp ninja-build pkg-config zlib1g-dev libnspr4-dev \
+    build-essential clang llvm libclang-dev gyp ninja-build pkg-config zlib1g-dev strace \
  && apt-get autoremove -y && apt-get clean -y \
  && rm -rf /var/lib/apt/lists/*
 
@@ -41,18 +38,11 @@ RUN "$NSS_DIR"/build.sh --static -Ddisable_tests=1
 
 RUN git clone https://github.com/agrover/neqo
 RUN cd neqo && git checkout qns && cargo build && cp target/debug/neqo-client target && cp target/debug/neqo-http3-server target && rm -rf target/debug && mkdir -p downloads
-RUN mkdir -p /logs/qlog
-
 
 # END stuff from grover
 
-COPY setup.sh .
-RUN chmod +x setup.sh
-
 COPY run_endpoint.sh .
 RUN chmod +x run_endpoint.sh
-
-RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod +x wait-for-it.sh
 
 ENTRYPOINT [ "/run_endpoint.sh" ]
 

@@ -34,10 +34,9 @@ RUN "$NSS_DIR"/build.sh --static -Ddisable_tests=1
 
 # START stuff from grover
 
-#RUN git clone https://github.com/mozilla/neqo
+RUN git clone https://github.com/mozilla/neqo
 
-RUN git clone https://github.com/agrover/neqo
-RUN cd neqo && git checkout qns && cargo build && cp target/debug/neqo-client target && cp target/debug/neqo-http3-server target && rm -rf target/debug
+RUN cd neqo && cargo build && cp target/debug/neqo-client target && cp target/debug/neqo-http3-server target && rm -rf target/debug
 
 # END stuff from grover
 

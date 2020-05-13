@@ -1,4 +1,4 @@
-FROM martenseemann/quic-network-simulator-endpoint:latest
+FROM martenseemann/quic-network-simulator-endpoint:latest AS buildimage
 
 # START stuff from mt
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -40,8 +40,13 @@ RUN cd neqo && cargo build && cp target/debug/neqo-client target && cp target/de
 
 # END stuff from grover
 
+# Copy only binaries to the final image to keep it small
+
+FROM martenseemann/quic-network-simulator-endpoint:latest
+ENV LD_LIBRARY_PATH=$HOME/dist/Debug/lib
+COPY --from=buildimage /neqo/target /neqo/target
+COPY --from=buildimage $HOME/dist/Debug/lib/*.so $HOME/dist/Debug/lib/
 COPY run_endpoint.sh .
 RUN chmod +x run_endpoint.sh
 
 ENTRYPOINT [ "/run_endpoint.sh" ]
-
